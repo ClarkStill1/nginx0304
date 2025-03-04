@@ -6,17 +6,18 @@ phases:
       nodejs: 16
   pre_build:
     commands:
-      -  echo Nothing to do in the pre_build phase...
+      -  aws ecr get-login-password --region ap-northeast-1 | docker login --username AWS --password-stdin 980921722018.dkr.ecr.ap-northeast-1.amazonaws.com
   build:
     commands:
       -  npm install
       -  npm run build
+      -  docker build -t 980921722018.dkr.ecr.ap-northeast-1.amazonaws.com/gsq-ecr:latest ./
+      -  docker push 980921722018.dkr.ecr.ap-northeast-1.amazonaws.com/gsq-ecr:latest
   post_build:
     commands:
       -  echo Build completed on `date`
-      -  ls -l ./dist/shop/
+      -  printf '[{"name":"mynginx","imageUri":"%s"}]' 980921722018.dkr.ecr.ap-northeast-1.amazonaws.com/gsq-ecr:latest > imagedefinitions.json
+      -  cat imagedefinitions.json
 artifacts:
   files:
-    -  dist/shop/*
-    -  dist/shop/assets/*
-    -  appspec.yml   
+    -  imagedefinitions.json
